@@ -37,6 +37,8 @@ def format_card(card, fields):
       elif field == "meanings":
         for key in card[field].keys():
           output += (f"{field.capitalize()} - {key.capitalize()}: {', '.join(card[field][key])}\n")
+      elif field == "img":
+        pass
       # Add input in all other cases 
       else:
         output += (f"{field.capitalize()}: {card[field]}\n")
@@ -51,6 +53,10 @@ async def on_ready():
   cards = json.loads(raw_cards)["cards"]
   global deck
   deck = cards.copy()
+  global all_fields
+  all_fields = ["name", "number", "arcana", "suit", "img", "fortune_telling", "keywords", "meanings", "Archetype", "Hebrew Alphabet", "Numerology", "Elemental", "Mythical/Spiritual", "Questions to Ask"]
+  global chosen_fields
+  chosen_fields = all_fields.copy()
 
   global card_images
   card_images = {card_img: discord.File("tarot-cards/cards/" + card_img, filename=card_img) for card_img in os.listdir("tarot-cards/cards")}
@@ -68,14 +74,18 @@ async def on_message(message):
     if not card:
       await message.channel.send("No more cards remaining, please shuffle the deck using !shuffle.")
       return
+    
+    global chosen_fields
+    if "img" in chosen_fields:
+      global card_images
+      file = card_images[card["img"]]
+      embed = discord.Embed()
+      img_url = "attachment://" + card["img"]
+      embed.set_image(url = img_url)
 
-    global card_images
-    file = card_images[card["img"]]
-    embed = discord.Embed()
-    img_url = "attachment://" + card["img"]
-    embed.set_image(url = img_url)
-
-    await message.channel.send(content=card["name"],file=file, embed=embed)
+      await message.channel.send(content=format_card(card, chosen_fields),file=file, embed=embed)
+    else:
+      await message.channel.send(content=format_card(card, chosen_fields))
 
   elif message.content.startswith('!shuffle'):
     shuffle()
