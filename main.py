@@ -10,6 +10,7 @@ client = discord.Client()
 def draw():
   # If deck is empty return None to avoid
   # syntax error of drawing from an empty list
+  global deck
   if not deck:
     return None
   
@@ -19,7 +20,9 @@ def draw():
 
 def shuffle():
   # Reset the deck to the list of cards
+  global deck
   deck = cards.copy()
+  print(deck)
 
 
 @client.event
@@ -45,12 +48,21 @@ async def on_message(message):
   if message.content.startswith('!draw'):
     card = draw()
 
+    if not card:
+      await message.channel.send("No more cards remaining, please shuffle the deck using !shuffle.")
+      return
+
+    global card_images
     file = card_images[card["img"]]
     embed = discord.Embed()
     img_url = "attachment://" + card["img"]
     embed.set_image(url = img_url)
 
     await message.channel.send(content=card["name"],file=file, embed=embed)
+
+  elif message.content.startswith('!shuffle'):
+    shuffle()
+    await message.channel.send("Deck has been shuffled!")
 
 
 client.run(os.environ['BOT_TOKEN'])
