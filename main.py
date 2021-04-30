@@ -24,6 +24,23 @@ def shuffle():
   deck = cards.copy()
   print(deck)
 
+def format_card(card, fields):
+  # This functions parses the raw JSON in a human-readable way.
+  output = ""
+  for field in fields:
+    # check to avoid null key errors 
+    if field in card.keys():
+      # only list in the JSON is keywords, joins and capitalizes
+      if type(card[field]) is list:
+        output += (f"{field.capitalize()}: {', '.join(card[field]).title()}\n")
+      # meanings field contains nested lists. Formats and unpacks the lists.
+      elif field == "meanings":
+        for key in card[field].keys():
+          output += (f"{field.capitalize()} - {key.capitalize()}: {', '.join(card[field][key])}\n")
+      # Add input in all other cases 
+      else:
+        output += (f"{field.capitalize()}: {card[field]}\n")
+  return output
 
 @client.event
 async def on_ready():
