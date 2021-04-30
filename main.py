@@ -32,16 +32,18 @@ def format_card(card, fields):
     if field in card.keys():
       # only list in the JSON is keywords, joins and capitalizes
       if type(card[field]) is list:
-        output += (f"{field.capitalize()}: {', '.join(card[field]).title()}\n")
+        output += (f"**{field.capitalize()}**: {', '.join(card[field])}\n\n")
+      elif field == "keywords":
+        output += (f"**{field.capitalize()}**: {', '.join(card[field]).title()}\n\n")
       # meanings field contains nested lists. Formats and unpacks the lists.
       elif field == "meanings":
         for key in card[field].keys():
-          output += (f"{field.capitalize()} - {key.capitalize()}: {', '.join(card[field][key])}\n")
+          output += (f"**{field.capitalize()}** - **{key.capitalize()}**: {', '.join(card[field][key])}\n\n")
       elif field == "img":
         pass
       # Add input in all other cases 
       else:
-        output += (f"{field.capitalize()}: {card[field]}\n")
+        output += (f"**{field.capitalize()}**: {card[field]}\n\n")
   return output
 
 @client.event
